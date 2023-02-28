@@ -21,10 +21,20 @@ io.on("connection", (socket)=>{
         io.emit("get-users", activeUsers);
     })
 
-    //disconnect socket
+    //send message
+    socket.on("send-message", (data)=>{
+        const {receiverId} = data;
+        const user = activeUsers.find((user)=>user.userId==receiverId);
+        console.log("Sending message to: ", receiverId);
+        console.log("Message: ", data.message);
+        if(user)
+            io.to(user.socketId).emit("receive-message", data.message);
+    })
+
+    //user disconnect
     socket.on("disconnect", ()=>{
         activeUsers = activeUsers.filter((user)=>user.socketId!=socket.id)
-        console.log("Socket closed ", activeUsers);
+        console.log("User disconnected", activeUsers);
         io.emit("get-users", activeUsers);
     })
 })
